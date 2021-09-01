@@ -1,3 +1,4 @@
+./server/.idea/*
 # Logs
 logs
 *.log
@@ -74,3 +75,8 @@ typings/
 
 # FuseBox cache
 .fusebox/
+*.xml
+server/.idea/server.iml
+*.txt
+*.txt
+server/apis/1.txt
