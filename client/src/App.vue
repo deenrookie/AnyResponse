@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <el-row>
-      <el-col span="1.5">
+      <el-col :span="2">
         <div><span style="padding-left: 20px; font-size: 15px; font-weight: 600; color: gray">预设模板</span></div>
         <div>
           <el-radio v-model="template" label="302" class="template-class">302跳转模板</el-radio>
@@ -10,8 +10,8 @@
           <el-radio v-model="template" label="ssrf" class="template-class">mock模板(JSON)</el-radio>
         </div>
       </el-col>
-      <el-col span="10.5">
-        <el-form ref="form" :model="form" label-width="150px">
+      <el-col :span="10">
+        <el-form ref="apiPostForm" :model="apiPostForm" label-width="150px">
           <el-form-item label="Method: ">
             <el-radio-group v-model="apiPostForm.method" size="small">
               <el-radio-button label="GET"></el-radio-button>
@@ -22,7 +22,8 @@
             <el-input v-model="apiPostForm.path" placeholder="请输入请求路径" class="status-code-class"></el-input>
           </el-form-item>
           <el-form-item label="StatusCode: " required>
-            <el-input v-model="apiPostForm.status_code" placeholder="输入StatusCode" class="status-code-class"></el-input>
+            <el-input v-model.number="apiPostForm.status_code" placeholder="输入StatusCode"
+                      class="status-code-class"></el-input>
             <el-radio-group v-model="apiPostForm.status_code" class="status-code-radio">
               <el-radio :label="200">200</el-radio>
               <el-radio :label="302">302</el-radio>
@@ -40,18 +41,20 @@
           </el-form-item>
           <el-form-item label="Header: ">
             <div>
-              <el-input
+              <el-autocomplete
                   placeholder="请输入key"
                   v-model="headerKey"
+                  :fetch-suggestions="queryHeader"
+                  :trigger-on-focus="true"
                   class="status-code-class">
-              </el-input>
+              </el-autocomplete>
               :
               <el-input
                   placeholder="请输入value"
                   v-model="headerValue"
                   style="margin-left: 20px; width: 20vh">
               </el-input>
-              <el-button type="primary" icon="el-icon-plus" style="margin-left: 10px"></el-button>
+              <el-button type="primary" icon="el-icon-plus" style="margin-left: 10px" @click="addHeader"></el-button>
             </div>
 
             <div>
@@ -76,14 +79,18 @@
             </div>
           </el-form-item>
           <el-form-item>
-            <el-button type="primary" @click="onSubmit">立即创建</el-button>
+            <el-button type="primary" @click="addApi">立即创建</el-button>
           </el-form-item>
         </el-form>
       </el-col>
-      <el-col span="6" style="margin-left: 40px">
+      <el-col :span="6" style="margin-left: 40px">
         <div v-for="(item, pos) in apiList" :key="pos">
-          <span style="width: 45px;display: inline-block" ><el-tag type="success" effect="dark" size="medium"> {{ item.method }} </el-tag> </span>
-          <el-tag  style="width: 300px;margin-left: 20px" effect="dark" size="medium" class="api-tag-class">{{ item.path }}</el-tag>
+          <span style="width: 45px;display: inline-block"><el-tag type="success" effect="dark"
+                                                                  size="medium"> {{ item.method }} </el-tag> </span>
+          <el-tag style="width: 330px;margin-left: 20px; font-size: 16px" effect="dark"
+                  size="medium" class="api-tag-class">
+            {{ item.path }}
+          </el-tag>
         </div>
       </el-col>
     </el-row>
@@ -103,6 +110,7 @@ export default {
       apiPostForm: {
         method: 'GET',
         path: '',
+        headers: {},
         status_code: 200,
         content_type: 'text/html',
         body: ''
@@ -116,9 +124,51 @@ export default {
           method: 'POST',
           path: "/api/example/ping2",
         }
+      ],
+      allHeaders: [
+        { "value": "Cookie" },
+        { "value": "Content-Type" },
+        { "value": "User-Agent" }
       ]
     }
   },
+  created() {
+    this.getApiList()
+  },
+  methods: {
+    createFilter(queryString) {
+      return (restaurant) => {
+        return (restaurant.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0);
+      };
+    },
+    queryHeader(queryString, cb) {
+      const headers = this.allHeaders;
+      const results = queryString ? headers.filter(this.createFilter(queryString)) : headers;
+      cb(results);
+    },
+    addHeader() {
+      if(this.headerKey && this.headerValue) {
+        this.apiPostForm.headers[this.headerKey] = this.headerValue
+        this.headerText = JSON.stringify(this.apiPostForm.headers)
+      }
+    },
+    getApiList() {
+      this.axios.get('http://localhost:9999/api/list').then((response) => {
+        console.log(response)
+        this.apiList = response.data;
+      }).catch((response) => {
+        console.log(response);
+      })
+    },
+    addApi() {
+      this.axios.post('http://localhost:9999/api/add', this.apiPostForm)
+          .then(res => {
+            console.log('res=>', res)
+            this.$message.success("提交成功")
+            this.getApiList()
+          })
+    }
+  }
 }
 </script>
 
@@ -130,6 +180,7 @@ export default {
   margin-top: 15vh;
   margin-left: 15vh;
 }
+
 .status-code-class {
   width: 20vh;
 }
@@ -141,6 +192,7 @@ export default {
 .template-class {
   margin-top: 20px;
 }
+
 .api-tag-class {
   margin: 10px;
   font-size: 15px;

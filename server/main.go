@@ -31,6 +31,7 @@ func Init() {
 
 func main() {
 	r := gin.Default()
+	r.Use(cors())
 	Init()
 	registerApis(r) // 路由注册
 	r.GET("/api/list", apiList)

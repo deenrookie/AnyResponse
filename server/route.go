@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"io/ioutil"
 	"net/http"
+	"strings"
 )
 
 func respHandler(c *gin.Context) {
@@ -49,6 +50,14 @@ func apiAdd(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+	if form.ReqPath == "" {
+		form.ReqPath = fmt.Sprintf("/%s", md5v1(timeNow()))
+	}
+
+	if !strings.HasPrefix(form.ReqPath, "/") {
+		form.ReqPath = fmt.Sprintf("/%s", form.ReqPath)
+	}
+
 	jsonText, _ := json.Marshal(form)
 	err := ioutil.WriteFile(fmt.Sprintf("apis/%v.txt", len(apiHandlersMap)+1), jsonText, 0644)
 	if err != nil {
@@ -56,4 +65,20 @@ func apiAdd(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"code": 0, "msg": "success"})
+}
+
+func cors() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		method := c.Request.Method
+		c.Header("Access-Control-Allow-Origin", "*")
+		c.Header("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE, UPDATE")
+		c.Header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization")
+		c.Header("Access-Control-Expose-Headers", "Content-Length, Access-Control-Allow-Origin, Access-Control-Allow-Headers, Cache-Control, Content-Language, Content-Type")
+		c.Header("Access-Control-Allow-Credentials", "true")
+
+		if method == "OPTIONS" {
+			c.AbortWithStatus(http.StatusNoContent)
+		}
+		c.Next()
+	}
 }
