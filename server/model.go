@@ -3,11 +3,11 @@ package main
 import "github.com/gin-gonic/gin"
 
 type Response struct {
-	Method     string            `json:"method"`
-	ReqPath    string            `json:"path"`
-	StatusCode int               `json:"status_code"`
-	Headers    map[string]string `json:"headers"`
-	Body       string            `json:"body"`
+	Method     string            `form:"method" json:"method"`
+	ReqPath    string            `form:"path" json:"path"`
+	StatusCode int               `form:"status_code" json:"status_code"`
+	Headers    map[string]string `form:"headers" json:"headers"`
+	Body       string            `form:"body" json:"body"`
 }
 
 type ApiHandler struct {
