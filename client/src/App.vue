@@ -7,7 +7,8 @@
           <el-radio v-model="template" label="302" class="template-class" @change="templateChange">302跳转模板</el-radio>
         </div>
         <div>
-          <el-radio v-model="template" label="mock" class="template-class" @change="templateChange">mock模板(JSON)</el-radio>
+          <el-radio v-model="template" label="mock" class="template-class" @change="templateChange">mock模板(JSON)
+          </el-radio>
         </div>
       </el-col>
       <el-col :span="10">
@@ -126,8 +127,8 @@ export default {
         }
       ],
       allHeaders: [
-        { "value": "Set-Cookie" },
-        { "value": "Content-Type" },
+        {"value": "Set-Cookie"},
+        {"value": "Content-Type"},
         {"value": "Access-Control-Allow-Origin"},
         {"value": "Content-Encoding"},
         {"value": "Content-Length"},
@@ -150,7 +151,7 @@ export default {
       cb(results);
     },
     addHeader() {
-      if(this.headerKey && this.headerValue) {
+      if (this.headerKey && this.headerValue) {
         this.apiPostForm.headers[this.headerKey] = this.headerValue
         this.headerText = JSON.stringify(this.apiPostForm.headers)
       }
@@ -164,6 +165,9 @@ export default {
       })
     },
     addApi() {
+      if (this.apiPostForm.content_type) {
+        this.apiPostForm.headers["Content-Type"] = this.apiPostForm.content_type
+      }
       this.axios.post('http://localhost:9999/api/add', this.apiPostForm)
           .then(res => {
             console.log('res=>', res)
@@ -173,12 +177,12 @@ export default {
     },
     templateChange(label) {
       if (label === '302') {
-        this.apiPostForm.status_code  = 302
+        this.apiPostForm.status_code = 302
         this.apiPostForm.headers["Location"] = "https://www.example.com"
         this.headerText = JSON.stringify(this.apiPostForm.headers)
       }
       if (label === 'mock') {
-        this.apiPostForm.status_code  = 200
+        this.apiPostForm.status_code = 200
         this.apiPostForm.content_type = 'application/json'
         this.headerText = JSON.stringify(this.apiPostForm.headers)
       }
