@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <el-row>
-      <el-tag type="info">Token</el-tag>
+      <el-tag type="danger" effect="dark">Token</el-tag>
       <el-input v-model="apiPostForm.token" placeholder="请输入Token" style="width: 200px;margin-left: 20px" size="small"></el-input>
     </el-row>
     <el-row style="margin-top: 20px">
@@ -170,6 +170,14 @@ export default {
       })
     },
     addApi() {
+      if(this.headerText) {
+        try {
+          this.apiPostForm.headers = JSON.parse(this.headerText)
+        }catch (e){
+          console.log(e)
+        }
+      }
+
       if (this.apiPostForm.content_type) {
         this.apiPostForm.headers["Content-Type"] = this.apiPostForm.content_type
       }
