@@ -4,10 +4,10 @@
       <el-col :span="2">
         <div><span style="padding-left: 20px; font-size: 15px; font-weight: 600; color: gray">预设模板</span></div>
         <div>
-          <el-radio v-model="template" label="302" class="template-class">302跳转模板</el-radio>
+          <el-radio v-model="template" label="302" class="template-class" @change="templateChange">302跳转模板</el-radio>
         </div>
         <div>
-          <el-radio v-model="template" label="ssrf" class="template-class">mock模板(JSON)</el-radio>
+          <el-radio v-model="template" label="mock" class="template-class" @change="templateChange">mock模板(JSON)</el-radio>
         </div>
       </el-col>
       <el-col :span="10">
@@ -126,9 +126,12 @@ export default {
         }
       ],
       allHeaders: [
-        { "value": "Cookie" },
+        { "value": "Set-Cookie" },
         { "value": "Content-Type" },
-        { "value": "User-Agent" }
+        {"value": "Access-Control-Allow-Origin"},
+        {"value": "Content-Encoding"},
+        {"value": "Content-Length"},
+        {"value": "Location"}
       ]
     }
   },
@@ -167,6 +170,18 @@ export default {
             this.$message.success("提交成功")
             this.getApiList()
           })
+    },
+    templateChange(label) {
+      if (label === '302') {
+        this.apiPostForm.status_code  = 302
+        this.apiPostForm.headers["Location"] = "https://www.example.com"
+        this.headerText = JSON.stringify(this.apiPostForm.headers)
+      }
+      if (label === 'mock') {
+        this.apiPostForm.status_code  = 200
+        this.apiPostForm.content_type = 'application/json'
+        this.headerText = JSON.stringify(this.apiPostForm.headers)
+      }
     }
   }
 }
