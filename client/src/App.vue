@@ -1,6 +1,10 @@
 <template>
   <div id="app">
     <el-row>
+      <el-tag type="info">Token</el-tag>
+      <el-input v-model="apiPostForm.token" placeholder="请输入Token" style="width: 200px;margin-left: 20px" size="small"></el-input>
+    </el-row>
+    <el-row style="margin-top: 20px">
       <el-col :span="2">
         <div><span style="padding-left: 20px; font-size: 15px; font-weight: 600; color: gray">预设模板</span></div>
         <div>
@@ -114,7 +118,8 @@ export default {
         headers: {},
         status_code: 200,
         content_type: 'text/html',
-        body: ''
+        body: '',
+        token: ''
       },
       apiList: [
         {
