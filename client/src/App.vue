@@ -178,6 +178,7 @@ export default {
     templateChange(label) {
       if (label === '302') {
         this.apiPostForm.status_code = 302
+        this.apiPostForm.content_type = 'text/html'
         this.apiPostForm.headers["Location"] = "https://www.example.com"
         this.headerText = JSON.stringify(this.apiPostForm.headers)
       }
