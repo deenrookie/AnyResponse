@@ -36,6 +36,12 @@ func registerApis(r *gin.Engine) {
 
 // 接口列表
 func apiList(r *gin.Context) {
+	getToken := r.Query("token")
+	if getToken != token {
+		r.JSON(http.StatusForbidden, gin.H{"error": "token error"})
+		return
+	}
+
 	ret := make([]Response, 0)
 	for _, item := range apiResponseMap {
 		ret = append(ret, item)
@@ -45,11 +51,19 @@ func apiList(r *gin.Context) {
 
 // 添加接口，保存生成txt，配合gowatch自动重启
 func apiAdd(c *gin.Context) {
+
 	var form Response
 	if err := c.ShouldBind(&form); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+
+	if form.Token != token {
+		c.JSON(http.StatusForbidden, gin.H{"error": "token error"})
+		return
+	}
+	fmt.Println("token", form.Token)
+
 	if form.ReqPath == "" {
 		form.ReqPath = fmt.Sprintf("/%s", md5v1(timeNow()))
 	}

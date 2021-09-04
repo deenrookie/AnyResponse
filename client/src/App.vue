@@ -2,7 +2,8 @@
   <div id="app">
     <el-row>
       <el-tag type="danger" effect="dark">Token</el-tag>
-      <el-input v-model="apiPostForm.token" placeholder="请输入Token" style="width: 200px;margin-left: 20px" size="small"></el-input>
+      <el-input v-model="apiPostForm.token" placeholder="请输入Token" style="width: 200px;margin-left: 20px"
+                size="small" @change="saveToken"></el-input>
     </el-row>
     <el-row style="margin-top: 20px">
       <el-col :span="2">
@@ -142,6 +143,9 @@ export default {
     }
   },
   created() {
+    this.apiPostForm.token = window.localStorage.getItem("token")
+  },
+  mounted() {
     this.getApiList()
   },
   methods: {
@@ -162,18 +166,29 @@ export default {
       }
     },
     getApiList() {
-      this.axios.get('http://localhost:9999/api/list').then((response) => {
+      this.axios.get('http://localhost:9999/api/list?token=' + this.apiPostForm.token).then((response) => {
         console.log(response)
+        if (response.status === 403) {
+          this.$message.error("Input token and refresh")
+          return
+        }
         this.apiList = response.data;
       }).catch((response) => {
-        console.log(response);
+        console.log(response)
+        this.$message.error("Token error or empty, input and refresh")
       })
     },
     addApi() {
-      if(this.headerText) {
+      if (this.apiPostForm.token === '') {
+        this.$message.error("token is empty")
+        return
+      } else {
+        window.localStorage.setItem("token", this.apiPostForm.token)
+      }
+      if (this.headerText) {
         try {
           this.apiPostForm.headers = JSON.parse(this.headerText)
-        }catch (e){
+        } catch (e) {
           console.log(e)
         }
       }
@@ -187,6 +202,10 @@ export default {
             this.$message.success("提交成功")
             this.getApiList()
           })
+    },
+    saveToken(token) {
+      this.apiPostForm.token = token
+      window.localStorage.setItem("token", this.apiPostForm.token)
     },
     templateChange(label) {
       if (label === '302') {

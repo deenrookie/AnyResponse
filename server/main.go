@@ -8,6 +8,8 @@ import (
 var apiResponseMap map[string]Response
 var apiHandlersMap map[string]ApiHandler
 
+var token = "example-token"
+
 func Init() {
 	files := walkDir("apis")
 
